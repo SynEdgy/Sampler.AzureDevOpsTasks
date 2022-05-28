@@ -142,3 +142,16 @@ PR branch. If left out it will default to the one file _CHANGELOG.md_.
 
 - `true`: Always create a changelog PR, even on preview releases.
 - `false`: Only create a changelog PR for full releases. Default.
+
+#### Section GitConfig
+
+This configures git.  user name and e-mail address of the user before task pushes the
+tag.
+
+##### Property UserName
+
+User name of the user that should push the tag.
+
+##### Property UserEmail
+
+E-mail address of the user that should push the tag.
