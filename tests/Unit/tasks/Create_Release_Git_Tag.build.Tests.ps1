@@ -58,6 +58,10 @@ Describe 'Create_Release_Git_Tag' {
             }
         }
 
+        AfterAll {
+            Remove-Item 'function:git'
+        }
+
         It 'Should run the build task without throwing' {
             {
                 Invoke-Build -Task $buildTaskName -File $taskAlias.Definition @mockTaskParameters
@@ -137,6 +141,10 @@ Describe 'Create_Release_Git_Tag' {
                 GitConfigUserEmail = 'bot@company.local'
                 MainGitBranch = 'main'
             }
+        }
+
+        AfterAll {
+            Remove-Item 'function:git'
         }
 
         It 'Should run the build task without throwing' {
