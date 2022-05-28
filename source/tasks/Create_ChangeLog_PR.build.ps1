@@ -40,10 +40,13 @@
         $false.
 
     .PARAMETER MainGitBranch
-        The name of the default branch. Defaults to 'main'.
+        The name of the default branch. Defaults to 'main'. It is used to compare
+        and target the PR against.
 
     .PARAMETER RepositoryPAT
-        The personal access token used for accessing hte Git repository.
+        The personal access token to use to access the Azure DevOps Git repository.
+        If left out the task assumes the authentication works without an personal
+        access token, e.g Windows integrated security.
 
     .PARAMETER BuildInfo
         The build info object from ModuleBuilder. Defaults to an empty hashtable.
