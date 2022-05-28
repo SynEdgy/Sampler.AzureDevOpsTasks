@@ -89,28 +89,12 @@ param
 task Create_Release_Git_Tag {
     . Set-SamplerTaskVariable
 
-    function Invoke-Git
-    {
-        param
-        (
-            $Arguments
-        )
-
-        # catch is triggered ONLY if $exe can't be found, never for errors reported by $exe itself
-        try { & git $Arguments } catch { throw $_ }
-
-        if ($LASTEXITCODE)
-        {
-            throw "git returned exit code $LASTEXITCODE indicated failure."
-        }
-    }
-
     <#
         This will return the tag on the HEAD commit, or blank if it
         fails (the error that is catched to $null).
 
         This call should not use Invoke-Git since it should not throw
-        on error.
+        on error, but return $null if failing.
     #>
     $isCurrentTag = git describe --contains 2> $null
 
@@ -142,8 +126,8 @@ task Create_Release_Git_Tag {
 
         Write-Build DarkGray "`tSetting git configuration."
 
-        Invoke-Git @('config', 'user.name', $GitConfigUserName)
-        Invoke-Git @('config', 'user.email', $GitConfigUserEmail)
+        Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('config', 'user.name', $GitConfigUserName)
+        Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('config', 'user.email', $GitConfigUserEmail)
 
         # Make empty line in output
         ""
@@ -152,11 +136,11 @@ task Create_Release_Git_Tag {
 
         Write-Build DarkGray ("`tGetting HEAD commit for the default branch '{0}." -f $MainGitBranch)
 
-        $defaultBranchHeadCommit = Invoke-Git @('rev-parse', "origin/$MainGitBranch")
+        $defaultBranchHeadCommit = Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('rev-parse', "origin/$MainGitBranch")
 
         Write-Build DarkGray ("`tCreating tag '{0}' on the commit '{1}'." -f $releaseTag, $defaultBranchHeadCommit)
 
-        Invoke-Git @('tag', $releaseTag, $defaultBranchHeadCommit)
+        Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('tag', $releaseTag, $defaultBranchHeadCommit)
 
         Write-Build DarkGray ("`tPushing created tag '{0}' to the default branch '{1}'." -f $releaseTag, $MainGitBranch)
 
@@ -173,7 +157,7 @@ task Create_Release_Git_Tag {
 
         $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', 'origin', '--tags')
 
-        Invoke-Git $pushArguments
+        Sampler.AzureDevOpsTasks\Invoke-Git -Argument $pushArguments
 
         <#
             Wait for a few seconds so the tag have time to propegate.

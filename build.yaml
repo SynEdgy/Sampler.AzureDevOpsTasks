@@ -11,7 +11,7 @@ VersionedOutputDirectory: true
 BuiltModuleSubdirectory: module
 
 AliasesToExport:
-  - 'Task.Create_ChangeLog_PR'
+  - 'Task.Create_Changelog_PR'
   - 'Task.Create_Release_Git_Tag'
 
 ####################################################
