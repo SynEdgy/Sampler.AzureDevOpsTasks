@@ -28,7 +28,7 @@ Please check out common DSC Community [contributing guidelines](https://dsccommu
 
 A full list of changes in each version can be found in the [change log](CHANGELOG.md).
 
-## Cmdlets
+## Commands
 <!-- markdownlint-disable MD036 - Emphasis used instead of a heading -->
 
 Refer to the comment-based help for more information about these helper
