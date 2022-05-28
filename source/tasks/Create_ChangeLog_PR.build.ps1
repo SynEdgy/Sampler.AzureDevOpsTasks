@@ -9,11 +9,41 @@
         The base directory of all output. Defaults to folder 'output' relative to
         the $BuildRoot.
 
+    .PARAMETER BuiltModuleSubdirectory
+        The parent path of the module to be built.
+
+    .PARAMETER VersionedOutputDirectory
+        If the module should be built using a version folder, e.g. ./MyModule/1.0.0.
+        Defaults to $true.
+
     .PARAMETER ProjectName
         The project name.
 
     .PARAMETER SourcePath
-        The path to the source folder name.
+        The path to the source folder.
+
+    .PARAMETER ChangelogPath
+        The path to and the name of the changelog file. Defaults to 'CHANGELOG.md'.
+
+    .PARAMETER GitConfigUserEmail
+        The user email to use when committing the changes.
+
+    .PARAMETER GitConfigUserName
+        The user name to use when committing the changes.
+
+    .PARAMETER ChangelogFilesToAdd
+        One or more files to the commit before pushing the changes. Defaults to
+        'CHANGELOG.md'.
+
+    .PARAMETER ChangelogUpdateChangelogOnPrerelease
+        If the changelog should be updated on pre-releases. Defaults to
+        $false.
+
+    .PARAMETER MainGitBranch
+        The name of the default branch. Defaults to 'main'.
+
+    .PARAMETER RepositoryPAT
+        The personal access token used for accessing hte Git repository.
 
     .PARAMETER BuildInfo
         The build info object from ModuleBuilder. Defaults to an empty hashtable.
@@ -24,6 +54,14 @@
 #>
 param
 (
+    [Parameter()]
+    [System.String]
+    $ProjectPath = (property ProjectPath $BuildRoot),
+
+    [Parameter()]
+    [System.String]
+    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
+
     [Parameter()]
     [System.String]
     $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory ''),
@@ -52,10 +90,10 @@ param
     $GitConfigUserName = (property GitConfigUserName ''),
 
     [Parameter()]
-    $ChangelogFilesToAdd = (property ChangelogFilesToAdd ''),
+    $ChangelogFilesToAdd = (property ChangelogFilesToAdd @('CHANGELOG.md')),
 
     [Parameter()]
-    $ChangelogUpdateChangelogOnPrerelease = (property ChangelogUpdateChangelogOnPrerelease ''),
+    $ChangelogUpdateChangelogOnPrerelease = (property ChangelogUpdateChangelogOnPrerelease $false),
 
     [Parameter()]
     $MainGitBranch = (property MainGitBranch 'main'),
@@ -216,18 +254,9 @@ task Create_ChangeLog_PR {
 
     Invoke-Git $pushArguments
 
-    # $NewPullRequestParams = @{
-    #     AccessToken         = $GitHubToken
-    #     OwnerName           = $repoInfo.Owner
-    #     RepositoryName      = $repoInfo.Repository
-    #     Title               = "Updating ChangeLog since release of $TagVersion"
-    #     Head                = $BranchName
-    #     Base                = $MainGitBranch
-    #     ErrorAction         = 'Stop'
-    #     MaintainerCanModify = $true
-    # }
-
-    # $Response = New-GitHubPullRequest @NewPullRequestParams
+    <#
+        TODO: az repos pr create --repository-name $ProjectName --source-branch $BranchName --target-branch $MainGitBranch --title "Updating ChangeLog since release of $TagVersion" --description <description> --labels <label1> <label2> <label3>
+    #>
 
     Write-Build Green ('Opened a PR for the changelog branch ''{0}''.' -f $BranchName)
 }

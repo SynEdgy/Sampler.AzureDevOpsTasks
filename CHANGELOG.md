@@ -9,4 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Adding
+
 - Adding two tasks `Create_Release_Git_Tag` and `Create_ChangeLog_PR`.
+
+### Changed
+
+- Update the documentation and the tasks.

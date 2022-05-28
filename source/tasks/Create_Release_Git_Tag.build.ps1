@@ -9,11 +9,27 @@
         The base directory of all output. Defaults to folder 'output' relative to
         the $BuildRoot.
 
+    .PARAMETER BuiltModuleSubdirectory
+        The parent path of the module to be built.
+
+    .PARAMETER VersionedOutputDirectory
+        If the module should be built using a version folder, e.g. ./MyModule/1.0.0.
+        Defaults to $true.
+
     .PARAMETER ProjectName
         The project name.
 
     .PARAMETER SourcePath
-        The path to the source folder name.
+        The path to the source folder.
+
+    .PARAMETER SkipPublish
+        If publishing should be skipped. Defaults to $false.
+
+    .PARAMETER MainGitBranch
+        The name of the default branch. Defaults to 'main'.
+
+    .PARAMETER RepositoryPAT
+        The personal access token used for accessing hte Git repository.
 
     .PARAMETER BuildInfo
         The build info object from ModuleBuilder. Defaults to an empty hashtable.
@@ -24,6 +40,14 @@
 #>
 param
 (
+    [Parameter()]
+    [System.String]
+    $ProjectPath = (property ProjectPath $BuildRoot),
+
+    [Parameter()]
+    [System.String]
+    $OutputDirectory = (property OutputDirectory (Join-Path $BuildRoot 'output')),
+
     [Parameter()]
     [System.String]
     $BuiltModuleSubdirectory = (property BuiltModuleSubdirectory ''),
