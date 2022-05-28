@@ -30,6 +30,6 @@ Describe 'Task.Create_Changelog_PR' {
 
         $alias.Name | Should -Be 'Task.Create_Changelog_PR'
         $alias.ReferencedCommand | Should -Be 'Create_Changelog_PR.build.ps1'
-        $alias.Definition | Should -Match 'Sampler\.AzureDevOpsTasks[\/|\\]\d\.\d\.\d[\/|\\]tasks[\/|\\]Create_Changelog_PR\.build\.ps1'
+        $alias.Definition | Should -Match 'Sampler\.AzureDevOpsTasks[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]Create_Changelog_PR\.build\.ps1'
     }
 }
