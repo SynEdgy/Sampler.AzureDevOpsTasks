@@ -1,11 +1,11 @@
 # Sampler.AzureDevOpsTasks
 
-This module contains tasks and the HQRM (High Quality Resource Module) tests for the PowerShell DSC Community's DSC resources. This is a PowerShell module designed to help testing your projects against HQRM guidelines.
+This module contains Sampler project build tasks for Azure DevOps Services and Azure DevOps Server.
 
-[![Build Status](https://dev.azure.com/dsccommunity/Sampler.AzureDevOpsTasks/_apis/build/status/dsccommunity.Sampler.AzureDevOpsTasks?branchName=main)](https://dev.azure.com/dsccommunity/Sampler.AzureDevOpsTasks/_build/latest?definitionId=3&branchName=main)
-![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/Sampler.AzureDevOpsTasks/3/main)
-[![codecov](https://codecov.io/gh/dsccommunity/Sampler.AzureDevOpsTasks/branch/main/graph/badge.svg)](https://codecov.io/gh/dsccommunity/Sampler.AzureDevOpsTasks)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/Sampler.AzureDevOpsTasks/3/main)](https://dsccommunity.visualstudio.com/Sampler.AzureDevOpsTasks/_test/analytics?definitionId=3&contextType=build)
+[![Build Status](https://dev.azure.com/SynEdgy/Sampler.AzureDevOpsTasks/_apis/build/status/SynEdgy.Sampler.AzureDevOpsTasks?branchName=main)](https://dev.azure.com/SynEdgy/Sampler.AzureDevOpsTasks/_build/latest?definitionId=19&branchName=main)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/SynEdgy/Sampler.AzureDevOpsTasks/19/main)
+[![codecov](https://codecov.io/gh/SynEdgy/Sampler.AzureDevOpsTasks/branch/main/graph/badge.svg)](https://codecov.io/gh/SynEdgy/Sampler.AzureDevOpsTasks)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/SynEdgy/Sampler.AzureDevOpsTasks/19/main)](https://SynEdgy.visualstudio.com/Sampler.AzureDevOpsTasks/_test/analytics?definitionId=19&contextType=build)
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/Sampler.AzureDevOpsTasks?label=Sampler.AzureDevOpsTasks%20Preview)](https://www.powershellgallery.com/packages/Sampler.AzureDevOpsTasks/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Sampler.AzureDevOpsTasks?label=Sampler.AzureDevOpsTasks)](https://www.powershellgallery.com/packages/Sampler.AzureDevOpsTasks/)
 
@@ -27,7 +27,6 @@ Please check out common DSC Community [contributing guidelines](https://dsccommu
 ## Change log
 
 A full list of changes in each version can be found in the [change log](CHANGELOG.md).
-
 
 ## Usage
 
@@ -74,7 +73,7 @@ agents.
 Quick Start:
 
 ```PowerShell
-PS C:\src\> git clone git@github.com:dsccommunity/Sampler.AzureDevOpsTasks.git
+PS C:\src\> git clone git@github.com:SynEdgy/Sampler.AzureDevOpsTasks.git
 PS C:\src\> cd Sampler.AzureDevOpsTasks
 PS C:\src\Sampler.AzureDevOpsTasks> build.ps1 -ResolveDependency
 # this will first bootstrap the environment by downloading dependencies required
