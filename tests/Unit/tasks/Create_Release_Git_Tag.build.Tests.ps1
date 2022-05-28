@@ -71,29 +71,10 @@ Describe 'Create_Release_Git_Tag' {
 
     Context 'When publishing should be skipped' {
         BeforeAll {
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git
 
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git -ParameterFilter {
-                $Argument -contains 'rev-parse'
-            } -MockWith {
-                return '0c23efc'
-            }
 
-            Mock -CommandName Get-BuiltModuleVersion -MockWith {
-                return '2.0.0'
-            }
-
-            Mock -CommandName Start-Sleep
 
             $mockTaskParameters = @{
-                ProjectPath = Join-Path -Path $TestDrive -ChildPath 'MyModule'
-                OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
-                SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
-                ProjectName = 'MyModule'
-                RepositoryPAT = '22222'
-                GitConfigUserName = 'bot'
-                GitConfigUserEmail = 'bot@company.local'
-                MainGitBranch = 'main'
                 SkipPublish = $true
             }
         }

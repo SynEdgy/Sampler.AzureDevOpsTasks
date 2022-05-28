@@ -89,6 +89,13 @@ param
 task Create_Release_Git_Tag {
     . Set-SamplerTaskVariable
 
+    if ($SkipPublish)
+    {
+        Write-Build Yellow ('Skipping the creating of a tag for module version ''{0}'' since ''$SkipPublish'' was set to ''$true''.' -f $ModuleVersion)
+
+        return
+    }
+
     <#
         This will return the tag on the HEAD commit, or blank if it
         fails (the error that is catched to $null).
@@ -101,9 +108,6 @@ task Create_Release_Git_Tag {
     if ($isCurrentTag)
     {
         Write-Build Green ('Found a tag. Assuming a full release has been pushed for module version ''{0}''. Exiting.' -f $ModuleVersion)
-    }
-    elseif ($SkipPublish) {
-        Write-Build Yellow ('Skipping the creating of a tag for module version ''{0}'' since ''$SkipPublish'' was set to ''$true''.' -f $ModuleVersion)
     }
     else
     {
