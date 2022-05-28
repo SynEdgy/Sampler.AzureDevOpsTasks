@@ -88,7 +88,7 @@ pushed branch.
 This can be use in conjunction with the `Create_Release_Git_Tag` task
 that creates the release tag (see the Sampler project).
 
-This is an example of how to use the task in the _azure-pipelines.yaml_ file:
+This is an example of how to use the task in the _azure-pipelines.yml_ file:
 
 ```yaml
 - task: PowerShell@2
