@@ -1,6 +1,7 @@
 <#
     .SYNOPSIS
-        This is a build task that generates conceptual help.
+        This build task updates the changelog with the release and creates a PR
+        to merge.
 
     .PARAMETER ProjectPath
         The root path to the project. Defaults to $BuildRoot.
