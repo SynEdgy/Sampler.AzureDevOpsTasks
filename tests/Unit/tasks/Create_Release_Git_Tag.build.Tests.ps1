@@ -25,6 +25,13 @@ Describe 'Create_Release_Git_Tag' {
 
     Context 'When creating a preview release tag' {
         BeforeAll {
+            function script:git
+            {
+                throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+            }
+
+            Mock -CommandName git
+
             Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git
 
             Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git -ParameterFilter {
@@ -105,6 +112,7 @@ Describe 'Create_Release_Git_Tag' {
             Mock -CommandName git -MockWith {
                 return 'v2.0.0'
             }
+
             Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git
 
             Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git -ParameterFilter {
