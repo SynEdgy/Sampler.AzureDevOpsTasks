@@ -28,58 +28,6 @@ Please check out common DSC Community [contributing guidelines](https://dsccommu
 
 A full list of changes in each version can be found in the [change log](CHANGELOG.md).
 
-## Usage
-
-Although this module is best used as part of the Sampler template pipeline
-automation, you can also use this in a standalone or custom way.
-
-You can run the tests against the source of your project or against a built module.  
-The format expected for your project follows [the Sampler](https://github.com/gaelcolas/Sampler)
-template (basically the source code in a source/src/ModuleName folder, and
-a built version in the output folder).
-
-Install the module from the PowerShell Gallery:
-
-```PowerShell
-Install-Module Sampler.AzureDevOpsTasks
-```
-
-Execute against a Built module:
-
-```PowerShell
-Invoke-DscResourceTest -Module UpdateServicesDsc
-```
-
-## Dependencies
-
-This module depends on:
-
-- **Pester**: This is a collection of generic Pester tests to run against your built
-module or source code.
-- **PSScriptAnalyzer**: Some tests are just validating you comply with some of the
-guidances set in PSSA rules and with custom rules.
-- **DscResource.AnalyzerRules**: This is the custom rules we've created to enforce
-a standard across the DscResource module we look after as a community.
-- **xDscResourceDesigner**: Because it offers MOF and DSC Resource testing capabilities.
-
-### Contributing
-
-The [Contributing guidelines can be found here](CONTRIBUTING.md).
-
-This project has continuous testing running on Windows, MacOS, Linux, with both
-Windows PowerShell 5.1 and the PowerShell version available on the Azure DevOps
-agents.
-
-Quick Start:
-
-```PowerShell
-PS C:\src\> git clone git@github.com:SynEdgy/Sampler.AzureDevOpsTasks.git
-PS C:\src\> cd Sampler.AzureDevOpsTasks
-PS C:\src\Sampler.AzureDevOpsTasks> build.ps1 -ResolveDependency
-# this will first bootstrap the environment by downloading dependencies required
-# then run the '.' task workflow as defined in build.yml
-```
-
 ## Cmdlets
 <!-- markdownlint-disable MD036 - Emphasis used instead of a heading -->
 
@@ -88,27 +36,28 @@ functions.
 
 ### `Invoke-Git`
 
-Clear the DSC LCM by performing the following functions:
+This command executes git with the provided arguments and throws an error
+if the call failed.
 
 #### Syntax
 
 <!-- markdownlint-disable MD013 - Line length -->
 ```plaintext
-Clear-DscLcmConfiguration [<CommonParameters>]
+Invoke-Git [-Argument] <string[]> [<CommonParameters>]
 ```
 <!-- markdownlint-enable MD013 - Line length -->
 
 #### Outputs
 
-None.
+[System.String]
 
 #### Example
 
 ```powershell
-Clear-DscLcmConfiguration
+Invoke-Git -Argument @('config', 'user.name', 'MyName')
 ```
 
-This command will Stop the DSC LCM and clear out any DSC configurations.
+Calls git to set user name in the git config.
 
 ## Tasks
 
@@ -128,170 +77,68 @@ ModuleBuildTasks:
     - 'Task.*'
 ```
 
-### `Invoke_HQRM_Tests`
+### `Create_Changelog_PR`
 
-This build task runs the High Quality Resource Module (HQRM) tests located
-in the folder `Tests/QA` in the module _Sampler.AzureDevOpsTasks_'s root. This build
-task is normally not used on its own. It is meant to run through the meta task
-[`Invoke_HQRM_Tests_Stop_On_Fail`](#invoke-hqrm-tests-stop-on-fail).
+This build task creates pushes a branch with the changelog updated with
+the current release version, then a pull request is created based on the
+pushed branch.
 
-Below is an example how the build task can be used when a repository is
-based on the [Sampler](https://github.com/gaelcolas/Sampler) project.
+>**NOTE: Currently creating a PR from the pushed branch does not work.**
 
-```yaml
-BuildWorkflow:
-  '.':
-    - build
+This can be use in conjunction with the `Create_Release_Git_Tag` task
+that creates the release tag.
 
-  hqrmtest:
-    - Invoke_HQRM_Tests
-```
-
-The build configuration (build.yaml) can be used to control the behavior
-of the build task. Everything under the key `DscTest:` controls the behavior.
-There are two sections `Pester` and `Script`.
-
-#### Section Pester
-
-The section Pester control the behavior of `Invoke-Pester` that is run
-through the build task. There are two different ways of configuring this,
-they can be combined but it is limited to the parameter sets of `Invoke-Pester`,
-see the command syntax in the [`Invoke-Pester` documentation](https://pester.dev/docs/commands/Invoke-Pester).
-
-##### Passing parameters to Pester
-
-Any parameter that `Invoke-Pester` takes is valid to use as key in the
-build configuration. The exception is `Container`, it is handled by the
-build task to pass parameters to the scripts correctly (see [Section Script](#section-script)).
-Also the parameter `Path` can only point to test files that do not need
-any script parameters passed to them to run.
-
->**NOTE:** A key that does not have a value will be ignored.
+This is an example of how to use the task in the _azure-pipelines.yaml_ file:
 
 ```yaml
-DscTest:
-  Pester:
-    Path:
-    ExcludePath:
-    TagFilter:
-    FullNameFilter:
-    ExcludeTagFilter:
-      - Common Tests - New Error-Level Script Analyzer Rules
-    Output: Detailed
+- task: PowerShell@2
+  name: sendChangelogPR
+  displayName: 'Send Changelog PR'
+  inputs:
+    filePath: './build.ps1'
+    arguments: '-tasks Create_ChangeLog_PR'
+    pwsh: true
+  env:
+    MainGitBranch: 'main'
+    RepositoryPAT: $(REPOSITORYPAT)
 ```
 
-Important to note that if the key `Configuration` is present it limits
-what other parameters that can be passed to `Invoke-Pester` due to the
-parameter set that is then used. But the key `Configuration` gives more
-control over the behavior of `Invoke-Pester`. For more information what 
-can be configured see the [sections of the `[PesterConfiguration]` object](https://pester.dev/docs/commands/Invoke-Pester#-configuration).
+#### Task parameters
 
-Under the key `Configuration` any section name in the `[PesterConfiguration]`
-object is valid to use as key. Any new sections or properties that will be
-added in future version of Pester will also be valid (as long as they follow
-the same pattern).
+Some task parameters are vital for the resource to work. See comment based
+help for the description for each available parameter. Below is the most
+important.
 
-```plaintext
-PS > [PesterConfiguration]::Default
-Run          : Run configuration.
-Filter       : Filter configuration
-CodeCoverage : CodeCoverage configuration.
-TestResult   : TestResult configuration.
-Should       : Should configuration.
-Debug        : Debug configuration for Pester. ⚠ Use at your own risk!
-Output       : Output configuration
-```
+#### Task configuration
 
-This shows how to use the advanced configuration option to exclude tags
-and change the output verbosity. The keys `Filter:` and `Output:` are the
-section names from the list above, and the keys `ExcludeTag` and `Verbosity`
-are properties in the respective section in the `[PesterConfiguration]`
-object.
-
->**NOTE:** A key that does not have a value will be ignored.
+The build configuration (_build.yaml_) can be used to control the behavior
+of the build task.
 
 ```yaml
-DscTest:
-  Pester:
-    Configuration:
-      Filter:
-        Tag:
-        ExcludeTag:
-          - Common Tests - New Error-Level Script Analyzer Rules
-      Output:
-        Verbosity: Detailed
+####################################################
+#             Changelog Configuration              #
+####################################################
+ChangelogConfig:
+  FilesToAdd:
+    - 'CHANGELOG.md'
+  UpdateChangelogOnPrerelease: false
+
+####################################################
+#                Git Configuration                 #
+####################################################
+GitConfig:
+  UserName: bot
+  UserEmail: bot@company.local
 ```
 
-#### Section Script
+#### Section ChangelogConfig
 
-##### Passing parameters to test scripts
+##### Property FilesToAdd
 
-The key `Script:` is used to define values to pass to parameters in the
-test scripts. Each key defined under the key `Script:` is a parameter that
-can be used in one or more test script.
+This specifies one or more files to add to the commit when creating the
+PR branch. If left out it will default to the one file _CHANGELOG.md_.
 
-See the section [Tests](#tests) for the parameters that can be defined here
-to control the behavior of the tests.
+##### Property UpdateChangelogOnPrerelease
 
->**NOTE:** The test scripts only used the parameters that is required and
->ignore any other that is defined. If there are tests added that need a
->different parameter name, that name can be defined under the key `Script:`
->and will be passed to the test that require it without any change to the
->build task.
-
-This defines three parameters `ExcludeSourceFile`, `ExcludeModuleFile`,
-and `MainGitBranch` and their corresponding values.
-
-```yaml
-DscTest:
-  Script:
-    ExcludeSourceFile:
-      - output
-      - source/DSCResources/DSC_ObsoleteResource1
-      - DSC_ObsoleteResource2
-    ExcludeModuleFile:
-      - Modules/DscResource.Common
-    MainGitBranch: main
-```
-
-### `Fail_Build_If_HQRM_Tests_Failed`
-
-This build task evaluates that there was no failed tests when the task
-`Invoke_HQRM_Tests` ran. This build task is normally not used on its own.
-It is meant to run through the meta task [`Invoke_HQRM_Tests_Stop_On_Fail`](#invoke_hqrm_tests_stop_on_fail).
-
-Below is an example how the build task can be used when a repository is
-based on the [Sampler](https://github.com/gaelcolas/Sampler) project.
-
-```yaml
-BuildWorkflow:
-  '.':
-    - build
-
-  hqrmtest:
-    - Invoke_HQRM_Tests
-    - Fail_Build_If_HQRM_Tests_Failed
-```
-
-### `Invoke_HQRM_Tests_Stop_On_Fail`
-
-This is a meta task meant to be used in the build configuration to run
-tests in the correct order to fail the test pipeline if there are any
-failed test.
-
-The order this meta task is running tasks:
-
-- Invoke_HQRM_Tests
-- Fail_Build_If_HQRM_Tests_Failed
-
-Below is an example how the build task can be used when a repository is
-based on the [Sampler](https://github.com/gaelcolas/Sampler) project.
-
-```yaml
-BuildWorkflow:
-  '.':
-    - build
-
-  hqrmtest:
-    - Invoke_HQRM_Tests_Stop_On_Fail
-```
+- `true`: Always create a changelog PR, even on preview releases.
+- `false`: Only create a changelog PR for full releases. Default.
