@@ -54,9 +54,7 @@ Describe 'Invoke-Git' {
         }
 
         It 'Should call git with one expected argument' {
-            InModuleScope -ScriptBlock {
-                { Invoke-Git -Argument @('log') } | Should -Not -Throw
-            }
+            { Invoke-Git -Argument @('log') } | Should -Not -Throw
 
             Should -Invoke -CommandName 'git' -ParameterFilter {
                 $Argument -eq 'log'
@@ -64,9 +62,7 @@ Describe 'Invoke-Git' {
         }
 
         It 'Should call git with two expected arguments' {
-            InModuleScope -ScriptBlock {
-                { Invoke-Git -Argument @('describe', '--contains') } | Should -Not -Throw
-            }
+            { Invoke-Git -Argument @('describe', '--contains') } | Should -Not -Throw
 
             Should -Invoke -CommandName 'git' -ParameterFilter {
                 $Argument -contains 'describe' -and
@@ -91,9 +87,7 @@ Describe 'Invoke-Git' {
         }
 
         It 'Should throw the correct error' {
-            InModuleScope -ScriptBlock {
-                { Invoke-Git -Argument @('log') } | Should -Throw -ExpectedMessage 'git returned exit code 1 indicated failure.'
-            }
+            { Invoke-Git -Argument @('log') } | Should -Throw -ExpectedMessage 'git returned exit code 1 indicated failure.'
 
             Should -Invoke -CommandName 'git' -ParameterFilter {
                 $Argument -eq 'log'
@@ -103,9 +97,7 @@ Describe 'Invoke-Git' {
 
     Context 'When git does not exist' {
         It 'Should throw an error' {
-            InModuleScope -ScriptBlock {
-                { Invoke-Git -Argument @('log') } | Should -Throw -ExpectedMessage 'git: StubNotImplemented'
-            }
+            { Invoke-Git -Argument @('log') } | Should -Throw -ExpectedMessage 'git: StubNotImplemented'
         }
     }
 }
