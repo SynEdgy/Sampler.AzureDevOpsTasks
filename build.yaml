@@ -12,7 +12,6 @@ BuiltModuleSubdirectory: module
 
 AliasesToExport:
   - 'Task.Create_Changelog_PR'
-  - 'Task.Create_Release_Git_Tag'
 
 ####################################################
 #       Sampler Pipeline Configuration             #

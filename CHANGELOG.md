@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Adding
 
-- Adding two tasks `Create_Release_Git_Tag` and `Create_Changelog_PR`.
+- Adding a task `Create_Changelog_PR`.
 
 ### Changed
 
