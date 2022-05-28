@@ -148,9 +148,9 @@ task Create_Changelog_PR {
 
     Write-Build DarkGray "`tSetting git configuration."
 
-    Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('config', 'user.name', $GitConfigUserName)
-    Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('config', 'user.email', $GitConfigUserEmail)
-    Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('config', 'pull.rebase', 'true')
+    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('config', 'user.name', $GitConfigUserName)
+    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('config', 'user.email', $GitConfigUserEmail)
+    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('config', 'pull.rebase', 'true')
 
     Write-Build DarkGray ("`tPulling latest commits and tags from branch '{0}'." -f $MainGitBranch)
 
@@ -168,18 +168,18 @@ task Create_Changelog_PR {
     # Track this branch on the remote 'origin
     $pullArguments += @('-c', 'http.sslbackend="schannel"', 'pull', 'origin', $MainGitBranch, '--tag')
 
-    Sampler.AzureDevOpsTasks\Invoke-Git -Argument $pullArguments
+    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument $pullArguments
 
     # Make empty line in output
     ""
 
     Write-Build DarkGray ("`tGetting HEAD commit for the default branch '{0}." -f $MainGitBranch)
 
-    $defaultBranchHeadCommit = Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('rev-parse', "origin/$MainGitBranch")
+    $defaultBranchHeadCommit = Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('rev-parse', "origin/$MainGitBranch")
 
     Write-Build DarkGray ("`tGet tags at commit '{0}'." -f $defaultBranchHeadCommit)
 
-    $tagsAtCommit = Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('tag', '-l', '--points-at', $defaultBranchHeadCommit)
+    $tagsAtCommit = Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('tag', '-l', '--points-at', $defaultBranchHeadCommit)
 
     Write-Build DarkGray ("`t`tFound tags: {0}" -f ($tagsAtCommit -join ' | '))
 
@@ -214,15 +214,15 @@ task Create_Changelog_PR {
 
     Write-Build DarkGray "`tCreating branch $branchName."
 
-    Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('checkout', '-B', $branchName)
+    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('checkout', '-B', $branchName)
 
     Write-Build DarkGray "`tUpdating Changelog file."
 
     Update-Changelog -ReleaseVersion ($tagVersion -replace '^v') -LinkMode 'None' -Path $ChangelogPath -ErrorAction 'SilentlyContinue'
 
-    Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('add', $ChangelogFilesToAdd)
+    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('add', $ChangelogFilesToAdd)
 
-    Sampler.AzureDevOpsTasks\Invoke-Git -Argument @('commit', '-m', "Updating Changelog since $tagVersion +semver:skip")
+    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('commit', '-m', "Updating Changelog since $tagVersion +semver:skip")
 
     Write-Build DarkGray ("`tPushing commit on branch '{0}' to the repository." -f $branchName)
 
@@ -240,7 +240,7 @@ task Create_Changelog_PR {
     # Track this branch on the remote 'origin
     $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', '-u', 'origin', $BranchName)
 
-    Sampler.AzureDevOpsTasks\Invoke-Git -Argument $pushArguments
+    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument $pushArguments
 
     <#
         TODO: az repos pr create --repository-name $ProjectName --source-branch $BranchName --target-branch $MainGitBranch --title "Updating Changelog since release of $TagVersion" --description <description> --labels <label1> <label2> <label3>

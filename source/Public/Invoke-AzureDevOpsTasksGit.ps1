@@ -11,7 +11,7 @@
         e.g. @('tag', 'v2.0.0').
 
     .EXAMPLE
-        Invoke-Git -Argument @('config', 'user.name', 'MyName')
+        Invoke-AzureDevOpsTasksGit -Argument @('config', 'user.name', 'MyName')
 
         Calls git to set user name in the git config.
 
@@ -25,7 +25,7 @@
         So we have to determine if git worked or not by checking the last exit code
         and then throw an error to stop the pipeline.
 #>
-function Invoke-Git
+function Invoke-AzureDevOpsTasksGit
 {
     param
     (

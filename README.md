@@ -34,7 +34,7 @@ A full list of changes in each version can be found in the [change log](CHANGELO
 Refer to the comment-based help for more information about these helper
 functions.
 
-### `Invoke-Git`
+### `Invoke-AzureDevOpsTasksGit`
 
 This command executes git with the provided arguments and throws an error
 if the call failed.
@@ -43,7 +43,7 @@ if the call failed.
 
 <!-- markdownlint-disable MD013 - Line length -->
 ```plaintext
-Invoke-Git [-Argument] <string[]> [<CommonParameters>]
+Invoke-AzureDevOpsTasksGit [-Argument] <string[]> [<CommonParameters>]
 ```
 <!-- markdownlint-enable MD013 - Line length -->
 
@@ -54,7 +54,7 @@ Invoke-Git [-Argument] <string[]> [<CommonParameters>]
 #### Example
 
 ```powershell
-Invoke-Git -Argument @('config', 'user.name', 'MyName')
+Invoke-AzureDevOpsTasksGit -Argument @('config', 'user.name', 'MyName')
 ```
 
 Calls git to set user name in the git config.

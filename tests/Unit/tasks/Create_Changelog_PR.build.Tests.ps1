@@ -25,9 +25,9 @@ Describe 'Create_Changelog_PR' {
 
     Context 'When no release tag is found' {
         BeforeAll {
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git
+            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit
 
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git -ParameterFilter {
+            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -ParameterFilter {
                 $Argument -contains 'rev-parse'
             } -MockWith {
                 return '0c23efc'
@@ -59,15 +59,15 @@ Describe 'Create_Changelog_PR' {
 
     Context 'When creating change log PR' {
         BeforeAll {
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git
+            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit
 
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git -ParameterFilter {
+            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -ParameterFilter {
                 $Argument -contains 'rev-parse'
             } -MockWith {
                 return '0c23efc'
             }
 
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-Git -ParameterFilter {
+            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -ParameterFilter {
                 $Argument -contains 'tag'
             } -MockWith {
                 return 'v2.0.0'
