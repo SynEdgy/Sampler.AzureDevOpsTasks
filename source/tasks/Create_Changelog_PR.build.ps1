@@ -118,6 +118,7 @@ task Create_Changelog_PR {
             $env:AZURE_DEVOPS_EXT_PAT = 'xxxxxxxxxx' # https://docs.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows
             az devops configure --defaults organization=https://dev.azure.com/contoso project=ContosoWebApp core.collect_telemetry=off
             # https://docs.microsoft.com/en-us/azure/devops/repos/git/pull-requests?view=azure-devops&tabs=azure-devops-cli#create-a-new-pull-request
+            az repos pr create --detect true # maybe this works instead of above defaults?
             az repos pr create --repository-name $ProjectName --source-branch $branchName --target-branch $MainGitBranch --title "Updating Changelog since release of v$ModuleVersion" --description <description> --labels <label1> <label2> <label3>
         #>
 
