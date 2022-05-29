@@ -77,16 +77,50 @@ ModuleBuildTasks:
     - 'Task.*'
 ```
 
+### `Create_AzureDevOps_Release`
+
+Meta task that runs tasks to create a tag if necessary, and pushes updated
+changelog to a branch, then create a PR based on the pushed branch.
+
+The following tasks are run (in order):
+
+- `Create_Release_Git_Tag` (from module Sampler)
+- `Create_Changelog_Branch` (from module Sampler)
+- `Create_Changelog_PR`
+
+Please see each individual task for documentation.
+
+This is an example of how to use the task in the _build.yaml_ file:
+
+```yaml
+- task: PowerShell@2
+  name: createAzureDevOpsRelease
+  displayName: 'Create Azure DevOps Release'
+  inputs:
+    filePath: './build.ps1'
+    arguments: '-tasks Create_AzureDevOps_Release'
+    pwsh: true
+  env:
+    MainGitBranch: 'main'
+    BasicAuthPAT: $(BASICAUTHPAT)
+    RepositoryPAT: $(REPOSITORYPAT)
+```
+
+This is an example of how to use the task in the _build.yaml_ file:
+
+```yaml
+  publish:
+    - Create_AzureDevOps_Release
+```
+
+Make sure to pass required environment variables when the task `publish`
+runs.
+
 ### `Create_Changelog_PR`
 
-This build task creates pushes a branch with the changelog updated with
-the current release version, then a pull request is created based on the
-pushed branch.
-
->**NOTE: Currently creating a PR from the pushed branch does not work.**
-
-This can be use in conjunction with the `Create_Release_Git_Tag` task
-that creates the release tag (see the Sampler project).
+This build task creates a pull request based on an already pushed branch.
+Prior to running this task the task `Create_Changelog_Branch` must have been run,
+or any other task that created a branch with the correct name.
 
 This is an example of how to use the task in the _azure-pipelines.yml_ file:
 
@@ -96,12 +130,22 @@ This is an example of how to use the task in the _azure-pipelines.yml_ file:
   displayName: 'Send Changelog PR'
   inputs:
     filePath: './build.ps1'
-    arguments: '-tasks Create_ChangeLog_PR'
+    arguments: '-tasks Create_Changelog_PR'
     pwsh: true
   env:
     MainGitBranch: 'main'
     RepositoryPAT: $(REPOSITORYPAT)
 ```
+
+This is an example of how to use the task in the _build.yaml_ file:
+
+```yaml
+  publish:
+    - Create_Changelog_PR
+```
+
+Make sure to pass required environment variables when the task `publish`
+runs.
 
 #### Task parameters
 
