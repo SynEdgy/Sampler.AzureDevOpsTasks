@@ -18,19 +18,29 @@ AfterAll {
 
 Describe 'Create_Changelog_PR' {
     BeforeAll {
+        function script:git
+        {
+            param
+            (
+                $Argument
+            )
+
+            throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
+        }
+
         $buildTaskName = 'Create_Changelog_PR'
 
         $taskAlias = Get-Alias -Name "Task.$buildTaskName"
     }
 
-    Context 'When no release tag is found' {
-        BeforeAll {
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit
+    AfterAll {
+        Remove-Item 'function:git'
+    }
 
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -ParameterFilter {
-                $Argument -contains 'rev-parse'
-            } -MockWith {
-                return '0c23efc'
+    Context 'When no release branch is found' {
+        BeforeAll {
+            Mock -CommandName 'git' -ParameterFilter {
+                $Argument -contains 'ls-remote'
             }
 
             Mock -CommandName Get-BuiltModuleVersion -MockWith {
@@ -43,10 +53,7 @@ Describe 'Create_Changelog_PR' {
                 SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
                 ProjectName = 'MyModule'
                 RepositoryPAT = '22222'
-                GitConfigUserName = 'bot'
-                GitConfigUserEmail = 'bot@company.local'
                 MainGitBranch = 'main'
-                ChangelogPath = 'CHANGELOG.md'
             }
         }
 
@@ -59,25 +66,15 @@ Describe 'Create_Changelog_PR' {
 
     Context 'When creating change log PR' {
         BeforeAll {
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit
-
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -ParameterFilter {
-                $Argument -contains 'rev-parse'
+            Mock -CommandName 'git' -ParameterFilter {
+                $Argument -contains 'ls-remote'
             } -MockWith {
-                return '0c23efc'
-            }
-
-            Mock -CommandName Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -ParameterFilter {
-                $Argument -contains 'tag'
-            } -MockWith {
-                return 'v2.0.0'
+                return 'refs/heads/myBranchName'
             }
 
             Mock -CommandName Get-BuiltModuleVersion -MockWith {
                 return '2.0.0'
             }
-
-            Mock -CommandName Update-Changelog -RemoveParameterValidation 'Path'
 
             $mockTaskParameters = @{
                 ProjectPath = Join-Path -Path $TestDrive -ChildPath 'MyModule'
@@ -85,10 +82,7 @@ Describe 'Create_Changelog_PR' {
                 SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
                 ProjectName = 'MyModule'
                 RepositoryPAT = '22222'
-                GitConfigUserName = 'bot'
-                GitConfigUserEmail = 'bot@company.local'
                 MainGitBranch = 'main'
-                ChangelogPath = 'CHANGELOG.md'
             }
         }
 

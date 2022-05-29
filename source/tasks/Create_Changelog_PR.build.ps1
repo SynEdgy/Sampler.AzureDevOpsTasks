@@ -23,23 +23,6 @@
     .PARAMETER SourcePath
         The path to the source folder.
 
-    .PARAMETER ChangelogPath
-        The path to and the name of the changelog file. Defaults to 'CHANGELOG.md'.
-
-    .PARAMETER GitConfigUserEmail
-        The user email to use when committing the changes.
-
-    .PARAMETER GitConfigUserName
-        The user name to use when committing the changes.
-
-    .PARAMETER ChangelogFilesToAdd
-        One or more files to the commit before pushing the changes. Defaults to
-        'CHANGELOG.md'.
-
-    .PARAMETER ChangelogUpdateChangelogOnPrerelease
-        If the changelog should be updated on pre-releases. Defaults to
-        $false.
-
     .PARAMETER MainGitBranch
         The name of the default branch. Defaults to 'main'. It is used to compare
         and target the PR against.
@@ -83,23 +66,6 @@ param
     $SourcePath = (property SourcePath ''),
 
     [Parameter()]
-    $ChangelogPath = (property ChangelogPath 'CHANGELOG.md'),
-
-    [Parameter()]
-    [string]
-    $GitConfigUserEmail = (property GitConfigUserEmail ''),
-
-    [Parameter()]
-    [string]
-    $GitConfigUserName = (property GitConfigUserName ''),
-
-    [Parameter()]
-    $ChangelogFilesToAdd = (property ChangelogFilesToAdd @('CHANGELOG.md')),
-
-    [Parameter()]
-    $ChangelogUpdateChangelogOnPrerelease = (property ChangelogUpdateChangelogOnPrerelease $false),
-
-    [Parameter()]
     $MainGitBranch = (property MainGitBranch 'main'),
 
     [Parameter()]
@@ -113,138 +79,52 @@ param
 task Create_Changelog_PR {
     . Set-SamplerTaskVariable
 
-    $ChangelogPath = Get-SamplerAbsolutePath -Path $ChangelogPath -RelativeTo $ProjectPath
-    "`Changelog Path                 = '$ChangelogPath'"
+    Write-Build DarkGray 'About to create a PR based on the changelog branch.'
 
-    foreach ($changelogConfigKey in @('UpdateChangelogOnPrerelease', 'FilesToAdd'))
+    $branchName = "updateChangelogAfterv$ModuleVersion"
+
+    Write-Build DarkGray ("`tVerifying that changelog branch exist '{0}'." -f $branchName)
+
+    # $pullArguments = @()
+
+    # if ($RepositoryPAT)
+    # {
+    #     Write-Build DarkGray "`t`tUsing personal access token to pull commits and tags."
+
+    #     $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $RepositoryPAT)))
+
+    #     $pullArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
+    # }
+
+    # # Track this branch on the remote 'origin
+    # $pullArguments += @('-c', 'http.sslbackend="schannel"', 'pull', 'origin', $MainGitBranch, '--tag')
+
+    # Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument $pullArguments
+
+    # This should not use Invoke-SamplerGit as this should not throw if fails.
+    $upstreamChangelogBranch = git ls-remote --heads origin $branchName
+
+    if ($upstreamChangelogBranch)
     {
-        $changelogConfigVariableName = 'Changelog{0}' -f $changelogConfigKey
+        Write-Build DarkGray "`tCreating PR based on the changelog branch."
 
-        if (-not (Get-Variable -Name $changelogConfigVariableName -ValueOnly -ErrorAction 'SilentlyContinue'))
-        {
-            # Variable is not set in context, use $BuildInfo.ChangelogConfig.<varName>
-            $configurationValue = $BuildInfo.ChangelogConfig.($changelogConfigKey)
+        <#
+            TODO:
+            brew install azure-cli
+            az config set core.collect_telemetry=off
 
-            Set-Variable -Name $changelogConfigVariableName -Value $configurationValue
+            # https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops
+            az extension add --name azure-devops
+            $env:AZURE_DEVOPS_EXT_PAT = 'xxxxxxxxxx' # https://docs.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows
+            az devops configure --defaults organization=https://dev.azure.com/contoso project=ContosoWebApp core.collect_telemetry=off
+            # https://docs.microsoft.com/en-us/azure/devops/repos/git/pull-requests?view=azure-devops&tabs=azure-devops-cli#create-a-new-pull-request
+            az repos pr create --repository-name $ProjectName --source-branch $branchName --target-branch $MainGitBranch --title "Updating Changelog since release of v$ModuleVersion" --description <description> --labels <label1> <label2> <label3>
+        #>
 
-            Write-Build DarkGray "`t...Set property $changelogConfigVariableName to the value $configurationValue."
-        }
-    }
-
-    foreach ($gitConfigKey in @('UserName', 'UserEmail'))
-    {
-        $gitConfigVariableName = 'GitConfig{0}' -f $gitConfigKey
-
-        if (-not (Get-Variable -Name $gitConfigVariableName -ValueOnly -ErrorAction 'SilentlyContinue'))
-        {
-            # Variable is not set in context, use $BuildInfo.ChangelogConfig.<varName>
-            $configurationValue = $BuildInfo.GitConfig.($gitConfigKey)
-
-            Set-Variable -Name $gitConfigVariableName -Value $configurationValue
-
-            Write-Build DarkGray "`t...Set property $gitConfigVariableName to the value $configurationValue."
-        }
-    }
-
-    Write-Build DarkGray "`tSetting git configuration."
-
-    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('config', 'user.name', $GitConfigUserName)
-    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('config', 'user.email', $GitConfigUserEmail)
-    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('config', 'pull.rebase', 'true')
-
-    Write-Build DarkGray ("`tPulling latest commits and tags from branch '{0}'." -f $MainGitBranch)
-
-    $pullArguments = @()
-
-    if ($RepositoryPAT)
-    {
-        Write-Build DarkGray "`t`tUsing personal access token to pull commits and tags."
-
-        $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $RepositoryPAT)))
-
-        $pullArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
-    }
-
-    # Track this branch on the remote 'origin
-    $pullArguments += @('-c', 'http.sslbackend="schannel"', 'pull', 'origin', $MainGitBranch, '--tag')
-
-    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument $pullArguments
-
-    # Make empty line in output
-    ""
-
-    Write-Build DarkGray ("`tGetting HEAD commit for the default branch '{0}." -f $MainGitBranch)
-
-    $defaultBranchHeadCommit = Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('rev-parse', "origin/$MainGitBranch")
-
-    Write-Build DarkGray ("`tGet tags at commit '{0}'." -f $defaultBranchHeadCommit)
-
-    $tagsAtCommit = Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('tag', '-l', '--points-at', $defaultBranchHeadCommit)
-
-    Write-Build DarkGray ("`t`tFound tags: {0}" -f ($tagsAtCommit -join ' | '))
-
-    # Only Update changelog if last commit is a full release
-    if ($ChangelogUpdateChangelogOnPrerelease)
-    {
-        $tagVersion = [System.String] ($tagsAtCommit | Select-Object -First 1)
-
-        Write-Build Green "Updating Changelog for PRE-Release $tagVersion."
+        Write-Build Green ('Opened a PR for the changelog branch ''{0}''.' -f $branchName)
     }
     else
     {
-        $tagVersion = [System.String] ($tagsAtCommit.Where{ $_ -notMatch 'v.*\-' })
-
-        if ($tagVersion)
-        {
-            Write-Build Green "Updating the Changelog for release $tagVersion."
-        }
-        else
-        {
-            Write-Build Yellow ("No release tag found to update the changelog from the available tags: {0}" -f ($tagsAtCommit -join ' | '))
-            return
-        }
+        Write-Build Yellow 'No changelog branch was found. Nothing to do, exiting.'
     }
-
-    # Make empty line in output
-    ""
-
-    Write-Build DarkGray ('About to create the PR for module version ''{0}''.' -f $ModuleVersion)
-
-    $branchName = "updateChangelogAfter$tagVersion"
-
-    Write-Build DarkGray "`tCreating branch $branchName."
-
-    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('checkout', '-B', $branchName)
-
-    Write-Build DarkGray "`tUpdating Changelog file."
-
-    Update-Changelog -ReleaseVersion ($tagVersion -replace '^v') -LinkMode 'None' -Path $ChangelogPath -ErrorAction 'SilentlyContinue'
-
-    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('add', $ChangelogFilesToAdd)
-
-    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument @('commit', '-m', "Updating Changelog since $tagVersion +semver:skip")
-
-    Write-Build DarkGray ("`tPushing commit on branch '{0}' to the repository." -f $branchName)
-
-    $pushArguments = @()
-
-    if ($RepositoryPAT)
-    {
-        Write-Build DarkGray "`t`tUsing personal access token to push the tag."
-
-        $patBase64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $RepositoryPAT)))
-
-        $pushArguments += @('-c', ('http.extraheader="AUTHORIZATION: basic {0}"' -f $patBase64))
-    }
-
-    # Track this branch on the remote 'origin
-    $pushArguments += @('-c', 'http.sslbackend="schannel"', 'push', '-u', 'origin', $BranchName)
-
-    Sampler.AzureDevOpsTasks\Invoke-AzureDevOpsTasksGit -Argument $pushArguments
-
-    <#
-        TODO: az repos pr create --repository-name $ProjectName --source-branch $BranchName --target-branch $MainGitBranch --title "Updating Changelog since release of $TagVersion" --description <description> --labels <label1> <label2> <label3>
-    #>
-
-    Write-Build Green ('Opened a PR for the changelog branch ''{0}''.' -f $BranchName)
 }
