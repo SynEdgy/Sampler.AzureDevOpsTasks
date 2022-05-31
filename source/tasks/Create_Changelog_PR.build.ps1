@@ -128,7 +128,7 @@ task Create_Changelog_PR {
 
         $invokeRestMethodParameters = @{
             Method      = 'POST'
-            Uri         = "https://$Organization/$Collection/$Project/_apis/git/repositories/$RepositoryID/pullrequests?supportsIterations=false&api-version=6.0"
+            Uri         = "https://$Instance/$Collection/$Project/_apis/git/repositories/$RepositoryID/pullrequests?supportsIterations=false&api-version=6.0"
             ContentType = 'application/json; charset=utf-8'
             Headers     = @{
                 AUTHORIZATION = 'basic {0}' -f $patBase64
