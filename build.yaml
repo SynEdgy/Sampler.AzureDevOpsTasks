@@ -92,7 +92,7 @@ Pester:
         - tests/Unit
         - tests/Integration
     CodeCoverage:
-      CoveragePercentTarget: 70
+      CoveragePercentTarget: 80
       OutputPath: JaCoCo_Merge.xml
       OutputEncoding: ascii
   ExcludeFromCodeCoverage:
