@@ -11,7 +11,8 @@ VersionedOutputDirectory: true
 BuiltModuleSubdirectory: module
 
 AliasesToExport:
-  - 'Task.Create_Changelog_PR'
+  - 'Task.Create_PR_From_SourceBranch'
+  - 'Task.Create_AzureDevOps_Release'
 
 ####################################################
 #       Sampler Pipeline Configuration             #

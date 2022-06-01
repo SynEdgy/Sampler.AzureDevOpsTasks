@@ -16,7 +16,7 @@ AfterAll {
     Remove-Module -Name $script:moduleName
 }
 
-Describe 'Create_Changelog_PR' {
+Describe 'Create_PR_From_SourceBranch' {
     BeforeAll {
         function script:git
         {
@@ -28,7 +28,7 @@ Describe 'Create_Changelog_PR' {
             throw '{0}: StubNotImplemented' -f $MyInvocation.MyCommand
         }
 
-        $buildTaskName = 'Create_Changelog_PR'
+        $buildTaskName = 'Create_PR_From_SourceBranch'
 
         $taskAlias = Get-Alias -Name "Task.$buildTaskName"
     }
@@ -37,7 +37,7 @@ Describe 'Create_Changelog_PR' {
         Remove-Item 'function:git'
     }
 
-    Context 'When no release branch is found' {
+    Context 'When no branch is found' {
         BeforeAll {
             Mock -CommandName 'git' -ParameterFilter {
                 $Argument -contains 'ls-remote'
@@ -52,7 +52,7 @@ Describe 'Create_Changelog_PR' {
                 OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
                 SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
                 ProjectName = 'MyModule'
-                RepositoryPAT = '22222'
+                BasicAuthPAT = '22222'
                 MainGitBranch = 'main'
             }
         }
@@ -76,13 +76,19 @@ Describe 'Create_Changelog_PR' {
                 return '2.0.0'
             }
 
+            Mock -CommandName Invoke-RestMethod
+
             $mockTaskParameters = @{
                 ProjectPath = Join-Path -Path $TestDrive -ChildPath 'MyModule'
                 OutputDirectory = Join-Path -Path $TestDrive -ChildPath 'MyModule/output'
                 SourcePath = Join-Path -Path $TestDrive -ChildPath 'MyModule/source'
                 ProjectName = 'MyModule'
-                RepositoryPAT = '22222'
+                BasicAuthPAT = '22222'
                 MainGitBranch = 'main'
+                PullRequestConfigInstance = 'instance'
+                PullRequestConfigCollection = 'collection'
+                PullRequestConfigProject = 'project'
+                PullRequestConfigRepositoryID = 'repositoryName'
             }
         }
 
@@ -90,6 +96,8 @@ Describe 'Create_Changelog_PR' {
             {
                 Invoke-Build -Task $buildTaskName -File $taskAlias.Definition @mockTaskParameters
             } | Should -Not -Throw
+
+            Should -Invoke -CommandName 'Invoke-RestMethod'
         }
     }
 }

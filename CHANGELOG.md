@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Adding
 
-- Adding a task `Create_Changelog_PR`.
+- Adding a task `Create_PR_From_SourceBranch`.
 - Adding meta task `Create_AzureDevOps_Release`.
 
 ### Changed

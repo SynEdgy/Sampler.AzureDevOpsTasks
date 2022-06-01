@@ -86,7 +86,7 @@ The following tasks are run (in order):
 
 - `Create_Release_Git_Tag` (from module Sampler)
 - `Create_Changelog_Branch` (from module Sampler)
-- `Create_Changelog_PR`
+- `Create_PR_From_SourceBranch`
 
 Please see each individual task for documentation.
 
@@ -103,7 +103,6 @@ This is an example of how to use the task in the _build.yaml_ file:
   env:
     MainGitBranch: 'main'
     BasicAuthPAT: $(BASICAUTHPAT)
-    RepositoryPAT: $(REPOSITORYPAT)
 ```
 
 This is an example of how to use the task in the _build.yaml_ file:
@@ -116,11 +115,12 @@ This is an example of how to use the task in the _build.yaml_ file:
 Make sure to pass required environment variables when the task `publish`
 runs.
 
-### `Create_Changelog_PR`
+### `Create_PR_From_SourceBranch`
 
 This build task creates a pull request based on an already pushed branch.
-Prior to running this task the task `Create_Changelog_Branch` must have been run,
-or any other task that created a branch with the correct name.
+
+>This task requires that (the Sampler) task `Create_Changelog_Branch` have
+>been ran, or by any other means that created a branch with the correct name.
 
 This is an example of how to use the task in the _azure-pipelines.yml_ file:
 
@@ -130,18 +130,18 @@ This is an example of how to use the task in the _azure-pipelines.yml_ file:
   displayName: 'Send Changelog PR'
   inputs:
     filePath: './build.ps1'
-    arguments: '-tasks Create_Changelog_PR'
+    arguments: '-tasks Create_PR_From_SourceBranch'
     pwsh: true
   env:
     MainGitBranch: 'main'
-    RepositoryPAT: $(REPOSITORYPAT)
+    BasicAuthPAT: $(BASICAUTHPAT)
 ```
 
 This is an example of how to use the task in the _build.yaml_ file:
 
 ```yaml
   publish:
-    - Create_Changelog_PR
+    - Create_PR_From_SourceBranch
 ```
 
 Make sure to pass required environment variables when the task `publish`
@@ -160,42 +160,37 @@ of the build task.
 
 ```yaml
 ####################################################
-#             Changelog Configuration              #
+#            Pull Request Configuration            #
 ####################################################
-ChangelogConfig:
-  FilesToAdd:
-    - 'CHANGELOG.md'
-  UpdateChangelogOnPrerelease: false
-
-####################################################
-#                Git Configuration                 #
-####################################################
-GitConfig:
-  UserName: bot
-  UserEmail: bot@company.local
+PullRequestConfig:
+  BranchName: 'updateChangelogAfterv{0}'
+  Title: 'Updating Changelog since release of v{0} +semver:skip'
+  Description: 'Updating Changelog since release of v{0} +semver:skip'
+  Instance: 'azdoserver.company.local'
+  Collection: 'MyCollection'
+  Project: 'MyProject'
+  RepositoryID: 'MyRepositoryName'
+  Debug: false
 ```
 
-#### Section ChangelogConfig
+#### Section PullRequestConfig
 
-##### Property FilesToAdd
+See the [Azure DevOps Server Rest API documentation](https://docs.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/create?view=azure-devops-server-rest-6.0)
+for more information what values to use for each property.
 
-This specifies one or more files to add to the commit when creating the
-PR branch. If left out it will default to the one file _CHANGELOG.md_.
+If the property `RepositoryID` is not set, the task will default to the
+project name found by Sampler pipeline, which is normally the module
+name. Please note that the property `Project` above and the project name
+are two different properties.
 
-##### Property UpdateChangelogOnPrerelease
+The property `Debug` when set to `true` will output the response from the
+Rest API call.
 
-- `true`: Always create a changelog PR, even on preview releases.
-- `false`: Only create a changelog PR for full releases. Default.
+The property `BranchName` can be used to override the default branch name
+that is used as the source branch for the pull request. The branch name
+can contain a `{0}` placeholder which will be replaced with the module
+version.
 
-#### Section GitConfig
-
-This configures git.  user name and e-mail address of the user before task pushes the
-tag.
-
-##### Property UserName
-
-User name of the user that should push the tag.
-
-##### Property UserEmail
-
-E-mail address of the user that should push the tag.
+The property `Title` and `Description` can be used to override the default
+title and description that is used for the pull request. Both values can
+contain a `{0}` placeholder which will be replaced with the module version.

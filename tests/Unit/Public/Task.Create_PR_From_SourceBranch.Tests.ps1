@@ -24,12 +24,12 @@ AfterAll {
     Remove-Module -Name $script:moduleName
 }
 
-Describe 'Task.Create_Changelog_PR' {
+Describe 'Task.Create_PR_From_SourceBranch' {
     It 'Should have exported the alias correct' {
-        $alias = Get-Alias -Name 'Task.Create_Changelog_PR'
+        $alias = Get-Alias -Name 'Task.Create_PR_From_SourceBranch'
 
-        $alias.Name | Should -Be 'Task.Create_Changelog_PR'
-        $alias.ReferencedCommand | Should -Be 'Create_Changelog_PR.build.ps1'
-        $alias.Definition | Should -Match 'Sampler\.AzureDevOpsTasks[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]Create_Changelog_PR\.build\.ps1'
+        $alias.Name | Should -Be 'Task.Create_PR_From_SourceBranch'
+        $alias.ReferencedCommand | Should -Be 'Create_PR_From_SourceBranch.build.ps1'
+        $alias.Definition | Should -Match 'Sampler\.AzureDevOpsTasks[\/|\\]\d+\.\d+\.\d+[\/|\\]tasks[\/|\\]Create_PR_From_SourceBranch\.build\.ps1'
     }
 }
