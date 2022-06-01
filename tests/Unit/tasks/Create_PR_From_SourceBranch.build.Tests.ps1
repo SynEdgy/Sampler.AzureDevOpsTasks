@@ -88,8 +88,34 @@ Describe 'Create_PR_From_SourceBranch' {
                 PullRequestConfigInstance = 'instance'
                 PullRequestConfigCollection = 'collection'
                 PullRequestConfigProject = 'project'
-                PullRequestConfigRepositoryID = 'repositoryName'
             }
+
+            $script:previousRepositoryID = $null
+
+            if ($BuildInfo)
+            {
+                if ($BuildInfo.PullRequestConfig)
+                {
+                    $script:previousRepositoryID = $BuildInfo.PullRequestConfig.RepositoryID
+                }
+
+                $BuildInfo.PullRequestConfig = @{
+                    RepositoryID = 'repositoryName'
+                }
+            }
+            else
+            {
+                $BuildInfo = @{
+                    PullRequestConfig = @{
+                        RepositoryID = 'repositoryName'
+                    }
+                }
+            }
+        }
+
+        AfterAll {
+            # Cleanup
+            $BuildInfo.PullRequestConfig.RepositoryID = $script:previousRepositoryID
         }
 
         It 'Should run the build task without throwing' {

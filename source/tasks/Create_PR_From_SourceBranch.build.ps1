@@ -152,14 +152,23 @@ task Create_PR_From_SourceBranch {
         {
             $gitConfigVariableName = 'PullRequestConfig{0}' -f $gitConfigKey
 
-            if (-not (Get-Variable -Name $gitConfigVariableName -ValueOnly -ErrorAction 'SilentlyContinue'))
+            <#
+                Using values in the following order:
+
+                1. Set in build configuration
+                2. Parameter, environment variable, passed from parent scope, or default value.
+            #>
+            if ($BuildInfo.PullRequestConfig -and $BuildInfo.PullRequestConfig.($gitConfigKey))
             {
-                # Variable is not set in context, use $BuildInfo.PullRequestConfig.<varName>
+                Write-Build DarkGray "`t`t$gitConfigVariableName was set in build configuration with the value $configurationValue"
+
                 $configurationValue = $BuildInfo.PullRequestConfig.($gitConfigKey)
 
                 Set-Variable -Name $gitConfigVariableName -Value $configurationValue
-
-                Write-Build DarkGray "`t...Set property $gitConfigVariableName to the value $configurationValue"
+            }
+            elseif ((Get-Variable -Name $gitConfigVariableName -ValueOnly -ErrorAction 'SilentlyContinue'))
+            {
+                Write-Build DarkGray "`t`t$gitConfigVariableName was set to the the value $configurationValue from parameter, environment variable, passed from parent scope, or was the default value."
             }
         }
 
