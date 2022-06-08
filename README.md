@@ -1,11 +1,11 @@
 # Sampler.AzureDevOpsTasks
 
-This module contains tasks and the HQRM (High Quality Resource Module) tests for the PowerShell DSC Community's DSC resources. This is a PowerShell module designed to help testing your projects against HQRM guidelines.
+This module contains Sampler project build tasks for Azure DevOps Services and Azure DevOps Server.
 
-[![Build Status](https://dev.azure.com/dsccommunity/Sampler.AzureDevOpsTasks/_apis/build/status/dsccommunity.Sampler.AzureDevOpsTasks?branchName=main)](https://dev.azure.com/dsccommunity/Sampler.AzureDevOpsTasks/_build/latest?definitionId=3&branchName=main)
-![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/dsccommunity/Sampler.AzureDevOpsTasks/3/main)
-[![codecov](https://codecov.io/gh/dsccommunity/Sampler.AzureDevOpsTasks/branch/main/graph/badge.svg)](https://codecov.io/gh/dsccommunity/Sampler.AzureDevOpsTasks)
-[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/dsccommunity/Sampler.AzureDevOpsTasks/3/main)](https://dsccommunity.visualstudio.com/Sampler.AzureDevOpsTasks/_test/analytics?definitionId=3&contextType=build)
+[![Build Status](https://dev.azure.com/SynEdgy/Sampler.AzureDevOpsTasks/_apis/build/status/SynEdgy.Sampler.AzureDevOpsTasks?branchName=main)](https://dev.azure.com/SynEdgy/Sampler.AzureDevOpsTasks/_build/latest?definitionId=19&branchName=main)
+![Azure DevOps coverage (branch)](https://img.shields.io/azure-devops/coverage/SynEdgy/Sampler.AzureDevOpsTasks/19/main)
+[![codecov](https://codecov.io/gh/SynEdgy/Sampler.AzureDevOpsTasks/branch/main/graph/badge.svg)](https://codecov.io/gh/SynEdgy/Sampler.AzureDevOpsTasks)
+[![Azure DevOps tests](https://img.shields.io/azure-devops/tests/SynEdgy/Sampler.AzureDevOpsTasks/19/main)](https://SynEdgy.visualstudio.com/Sampler.AzureDevOpsTasks/_test/analytics?definitionId=19&contextType=build)
 [![PowerShell Gallery (with prereleases)](https://img.shields.io/powershellgallery/vpre/Sampler.AzureDevOpsTasks?label=Sampler.AzureDevOpsTasks%20Preview)](https://www.powershellgallery.com/packages/Sampler.AzureDevOpsTasks/)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/v/Sampler.AzureDevOpsTasks?label=Sampler.AzureDevOpsTasks)](https://www.powershellgallery.com/packages/Sampler.AzureDevOpsTasks/)
 
@@ -28,88 +28,36 @@ Please check out common DSC Community [contributing guidelines](https://dsccommu
 
 A full list of changes in each version can be found in the [change log](CHANGELOG.md).
 
-
-## Usage
-
-Although this module is best used as part of the Sampler template pipeline
-automation, you can also use this in a standalone or custom way.
-
-You can run the tests against the source of your project or against a built module.  
-The format expected for your project follows [the Sampler](https://github.com/gaelcolas/Sampler)
-template (basically the source code in a source/src/ModuleName folder, and
-a built version in the output folder).
-
-Install the module from the PowerShell Gallery:
-
-```PowerShell
-Install-Module Sampler.AzureDevOpsTasks
-```
-
-Execute against a Built module:
-
-```PowerShell
-Invoke-DscResourceTest -Module UpdateServicesDsc
-```
-
-## Dependencies
-
-This module depends on:
-
-- **Pester**: This is a collection of generic Pester tests to run against your built
-module or source code.
-- **PSScriptAnalyzer**: Some tests are just validating you comply with some of the
-guidances set in PSSA rules and with custom rules.
-- **DscResource.AnalyzerRules**: This is the custom rules we've created to enforce
-a standard across the DscResource module we look after as a community.
-- **xDscResourceDesigner**: Because it offers MOF and DSC Resource testing capabilities.
-
-### Contributing
-
-The [Contributing guidelines can be found here](CONTRIBUTING.md).
-
-This project has continuous testing running on Windows, MacOS, Linux, with both
-Windows PowerShell 5.1 and the PowerShell version available on the Azure DevOps
-agents.
-
-Quick Start:
-
-```PowerShell
-PS C:\src\> git clone git@github.com:dsccommunity/Sampler.AzureDevOpsTasks.git
-PS C:\src\> cd Sampler.AzureDevOpsTasks
-PS C:\src\Sampler.AzureDevOpsTasks> build.ps1 -ResolveDependency
-# this will first bootstrap the environment by downloading dependencies required
-# then run the '.' task workflow as defined in build.yml
-```
-
-## Cmdlets
+## Commands
 <!-- markdownlint-disable MD036 - Emphasis used instead of a heading -->
 
 Refer to the comment-based help for more information about these helper
 functions.
 
-### `Invoke-Git`
+### `Invoke-AzureDevOpsTasksGit`
 
-Clear the DSC LCM by performing the following functions:
+This command executes git with the provided arguments and throws an error
+if the call failed.
 
 #### Syntax
 
 <!-- markdownlint-disable MD013 - Line length -->
 ```plaintext
-Clear-DscLcmConfiguration [<CommonParameters>]
+Invoke-AzureDevOpsTasksGit [-Argument] <string[]> [<CommonParameters>]
 ```
 <!-- markdownlint-enable MD013 - Line length -->
 
 #### Outputs
 
-None.
+[System.String]
 
 #### Example
 
 ```powershell
-Clear-DscLcmConfiguration
+Invoke-AzureDevOpsTasksGit -Argument @('config', 'user.name', 'MyName')
 ```
 
-This command will Stop the DSC LCM and clear out any DSC configurations.
+Calls git to set user name in the git config.
 
 ## Tasks
 
@@ -129,170 +77,120 @@ ModuleBuildTasks:
     - 'Task.*'
 ```
 
-### `Invoke_HQRM_Tests`
+### `Create_AzureDevOps_Release`
 
-This build task runs the High Quality Resource Module (HQRM) tests located
-in the folder `Tests/QA` in the module _Sampler.AzureDevOpsTasks_'s root. This build
-task is normally not used on its own. It is meant to run through the meta task
-[`Invoke_HQRM_Tests_Stop_On_Fail`](#invoke-hqrm-tests-stop-on-fail).
+Meta task that runs tasks to create a tag if necessary, and pushes updated
+changelog to a branch, then create a PR based on the pushed branch.
 
-Below is an example how the build task can be used when a repository is
-based on the [Sampler](https://github.com/gaelcolas/Sampler) project.
+The following tasks are run (in order):
 
-```yaml
-BuildWorkflow:
-  '.':
-    - build
+- `Create_Release_Git_Tag` (from module Sampler)
+- `Create_Changelog_Branch` (from module Sampler)
+- `Create_PR_From_SourceBranch`
 
-  hqrmtest:
-    - Invoke_HQRM_Tests
-```
+Please see each individual task for documentation.
 
-The build configuration (build.yaml) can be used to control the behavior
-of the build task. Everything under the key `DscTest:` controls the behavior.
-There are two sections `Pester` and `Script`.
-
-#### Section Pester
-
-The section Pester control the behavior of `Invoke-Pester` that is run
-through the build task. There are two different ways of configuring this,
-they can be combined but it is limited to the parameter sets of `Invoke-Pester`,
-see the command syntax in the [`Invoke-Pester` documentation](https://pester.dev/docs/commands/Invoke-Pester).
-
-##### Passing parameters to Pester
-
-Any parameter that `Invoke-Pester` takes is valid to use as key in the
-build configuration. The exception is `Container`, it is handled by the
-build task to pass parameters to the scripts correctly (see [Section Script](#section-script)).
-Also the parameter `Path` can only point to test files that do not need
-any script parameters passed to them to run.
-
->**NOTE:** A key that does not have a value will be ignored.
+This is an example of how to use the task in the _build.yaml_ file:
 
 ```yaml
-DscTest:
-  Pester:
-    Path:
-    ExcludePath:
-    TagFilter:
-    FullNameFilter:
-    ExcludeTagFilter:
-      - Common Tests - New Error-Level Script Analyzer Rules
-    Output: Detailed
+- task: PowerShell@2
+  name: createAzureDevOpsRelease
+  displayName: 'Create Azure DevOps Release'
+  inputs:
+    filePath: './build.ps1'
+    arguments: '-tasks Create_AzureDevOps_Release'
+    pwsh: true
+  env:
+    MainGitBranch: 'main'
+    BasicAuthPAT: $(BASICAUTHPAT)
 ```
 
-Important to note that if the key `Configuration` is present it limits
-what other parameters that can be passed to `Invoke-Pester` due to the
-parameter set that is then used. But the key `Configuration` gives more
-control over the behavior of `Invoke-Pester`. For more information what 
-can be configured see the [sections of the `[PesterConfiguration]` object](https://pester.dev/docs/commands/Invoke-Pester#-configuration).
-
-Under the key `Configuration` any section name in the `[PesterConfiguration]`
-object is valid to use as key. Any new sections or properties that will be
-added in future version of Pester will also be valid (as long as they follow
-the same pattern).
-
-```plaintext
-PS > [PesterConfiguration]::Default
-Run          : Run configuration.
-Filter       : Filter configuration
-CodeCoverage : CodeCoverage configuration.
-TestResult   : TestResult configuration.
-Should       : Should configuration.
-Debug        : Debug configuration for Pester. ⚠ Use at your own risk!
-Output       : Output configuration
-```
-
-This shows how to use the advanced configuration option to exclude tags
-and change the output verbosity. The keys `Filter:` and `Output:` are the
-section names from the list above, and the keys `ExcludeTag` and `Verbosity`
-are properties in the respective section in the `[PesterConfiguration]`
-object.
-
->**NOTE:** A key that does not have a value will be ignored.
+This is an example of how to use the task in the _build.yaml_ file:
 
 ```yaml
-DscTest:
-  Pester:
-    Configuration:
-      Filter:
-        Tag:
-        ExcludeTag:
-          - Common Tests - New Error-Level Script Analyzer Rules
-      Output:
-        Verbosity: Detailed
+  publish:
+    - Create_AzureDevOps_Release
 ```
 
-#### Section Script
+Make sure to pass required environment variables when the task `publish`
+runs.
 
-##### Passing parameters to test scripts
+### `Create_PR_From_SourceBranch`
 
-The key `Script:` is used to define values to pass to parameters in the
-test scripts. Each key defined under the key `Script:` is a parameter that
-can be used in one or more test script.
+This build task creates a pull request based on an already pushed branch.
 
-See the section [Tests](#tests) for the parameters that can be defined here
-to control the behavior of the tests.
+>This task requires that (the Sampler) task `Create_Changelog_Branch` have
+>been ran, or by any other means that created a branch with the correct name.
 
->**NOTE:** The test scripts only used the parameters that is required and
->ignore any other that is defined. If there are tests added that need a
->different parameter name, that name can be defined under the key `Script:`
->and will be passed to the test that require it without any change to the
->build task.
-
-This defines three parameters `ExcludeSourceFile`, `ExcludeModuleFile`,
-and `MainGitBranch` and their corresponding values.
+This is an example of how to use the task in the _azure-pipelines.yml_ file:
 
 ```yaml
-DscTest:
-  Script:
-    ExcludeSourceFile:
-      - output
-      - source/DSCResources/DSC_ObsoleteResource1
-      - DSC_ObsoleteResource2
-    ExcludeModuleFile:
-      - Modules/DscResource.Common
-    MainGitBranch: main
+- task: PowerShell@2
+  name: sendChangelogPR
+  displayName: 'Send Changelog PR'
+  inputs:
+    filePath: './build.ps1'
+    arguments: '-tasks Create_PR_From_SourceBranch'
+    pwsh: true
+  env:
+    MainGitBranch: 'main'
+    BasicAuthPAT: $(BASICAUTHPAT)
 ```
 
-### `Fail_Build_If_HQRM_Tests_Failed`
-
-This build task evaluates that there was no failed tests when the task
-`Invoke_HQRM_Tests` ran. This build task is normally not used on its own.
-It is meant to run through the meta task [`Invoke_HQRM_Tests_Stop_On_Fail`](#invoke_hqrm_tests_stop_on_fail).
-
-Below is an example how the build task can be used when a repository is
-based on the [Sampler](https://github.com/gaelcolas/Sampler) project.
+This is an example of how to use the task in the _build.yaml_ file:
 
 ```yaml
-BuildWorkflow:
-  '.':
-    - build
-
-  hqrmtest:
-    - Invoke_HQRM_Tests
-    - Fail_Build_If_HQRM_Tests_Failed
+  publish:
+    - Create_PR_From_SourceBranch
 ```
 
-### `Invoke_HQRM_Tests_Stop_On_Fail`
+Make sure to pass required environment variables when the task `publish`
+runs.
 
-This is a meta task meant to be used in the build configuration to run
-tests in the correct order to fail the test pipeline if there are any
-failed test.
+#### Task parameters
 
-The order this meta task is running tasks:
+Some task parameters are vital for the resource to work. See comment based
+help for the description for each available parameter. Below is the most
+important.
 
-- Invoke_HQRM_Tests
-- Fail_Build_If_HQRM_Tests_Failed
+#### Task configuration
 
-Below is an example how the build task can be used when a repository is
-based on the [Sampler](https://github.com/gaelcolas/Sampler) project.
+The build configuration (_build.yaml_) can be used to control the behavior
+of the build task.
 
 ```yaml
-BuildWorkflow:
-  '.':
-    - build
-
-  hqrmtest:
-    - Invoke_HQRM_Tests_Stop_On_Fail
+####################################################
+#            Pull Request Configuration            #
+####################################################
+PullRequestConfig:
+  BranchName: 'updateChangelogAfterv{0}'
+  Title: 'Updating Changelog since release of v{0} +semver:skip'
+  Description: 'Updating Changelog since release of v{0} +semver:skip'
+  Instance: 'azdoserver.company.local'
+  Collection: 'MyCollection'
+  Project: 'MyProject'
+  RepositoryID: 'MyRepositoryName'
+  Debug: false
 ```
+
+#### Section PullRequestConfig
+
+See the [Azure DevOps Server Rest API documentation](https://docs.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/create?view=azure-devops-server-rest-6.0)
+for more information what values to use for each property.
+
+If the property `RepositoryID` is not set, the task will default to the
+project name found by Sampler pipeline, which is normally the module
+name. Please note that the property `Project` above and the project name
+are two different properties.
+
+The property `Debug` when set to `true` will output the response from the
+Rest API call.
+
+The property `BranchName` can be used to override the default branch name
+that is used as the source branch for the pull request. The branch name
+can contain a `{0}` placeholder which will be replaced with the module
+version.
+
+The property `Title` and `Description` can be used to override the default
+title and description that is used for the pull request. Both values can
+contain a `{0}` placeholder which will be replaced with the module version.

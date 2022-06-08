@@ -17,6 +17,5 @@
     'Sampler.GitHubTasks'       = 'latest'
     MarkdownLinkCheck           = 'latest'
     'DscResource.AnalyzerRules' = 'latest'
-    xDscResourceDesigner        = 'latest'
     'DscResource.Test'          = 'latest'
 }

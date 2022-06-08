@@ -9,4 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Adding two tasks `Create_Release_Git_Tag` and `Create_ChangeLog_PR`.
+### Adding
+
+- Adding a task `Create_PR_From_SourceBranch`.
+- Adding meta task `Create_AzureDevOps_Release`.
+
+### Changed
+
+- Update the documentation and the tasks.

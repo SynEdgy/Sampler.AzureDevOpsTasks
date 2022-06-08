@@ -11,8 +11,8 @@ VersionedOutputDirectory: true
 BuiltModuleSubdirectory: module
 
 AliasesToExport:
-  - 'Task.Create_ChangeLog_PR'
-  - 'Task.Create_Release_Git_Tag'
+  - 'Task.Create_PR_From_SourceBranch'
+  - 'Task.Create_AzureDevOps_Release'
 
 ####################################################
 #       Sampler Pipeline Configuration             #
@@ -92,8 +92,8 @@ Pester:
         - tests/Unit
         - tests/Integration
     CodeCoverage:
-      CoveragePercentTarget: 78
-      OutputPath: JaCoCo_coverage.xml
+      CoveragePercentTarget: 85
+      OutputPath: JaCoCo_Merge.xml
       OutputEncoding: ascii
   ExcludeFromCodeCoverage:
 
@@ -146,6 +146,6 @@ TaskHeader: |
 GitHubConfig:
   GitHubFilesToAdd:
     - 'CHANGELOG.md'
-  GitHubConfigUserName: dscbot
-  GitHubConfigUserEmail: dsccommunity@outlook.com
+  GitHubConfigUserName: gaelcolas
+  GitHubConfigUserEmail: psgallery@synedgy.com
   UpdateChangelogOnPrerelease: false

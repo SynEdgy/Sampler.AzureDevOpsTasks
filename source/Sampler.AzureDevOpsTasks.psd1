@@ -10,19 +10,19 @@
     # CompatiblePSEditions = @()
 
     # ID used to uniquely identify this module
-    GUID              = '036f67a1-21a3-43b6-95a0-73d5549e854e'
+    GUID              = '8f88a55c-8dd7-442d-87d7-e0739b1fa4a2'
 
     # Author of this module
-    Author            = 'DSC Community'
+    Author            = 'SynEdgy Limited'
 
     # Company or vendor of this module
-    CompanyName       = 'DSC Community'
+    CompanyName       = 'SynEdgy Limited'
 
     # Copyright statement for this module
-    Copyright         = '(c) dsccommunity. All rights reserved.'
+    Copyright         = '(c) SynEdgy Limited contributors. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description       = 'Testing DSC Resources against HQRM guidelines'
+    Description       = 'Sampler Project Build Tasks for Azure DevOps Services and Azure DevOps Server'
 
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '5.0'
@@ -87,18 +87,18 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags                       = @('DesiredStateConfiguration', 'DSC', 'DSCResourceKit', 'DSCResource')
+            Tags                       = @('Sampler', 'AzureDevOps', 'Invoke-Build')
 
             # A URL to the license for this module.
-            LicenseUri                 = 'https://github.com/dsccommunity/Sampler.AzureDevOpsTasks/blob/main/LICENSE'
+            LicenseUri                 = 'https://github.com/SynEdgy/Sampler.AzureDevOpsTasks/blob/main/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri                 = 'https://github.com/dsccommunity/Sampler.AzureDevOpsTasks'
+            ProjectUri                 = 'https://github.com/SynEdgy/Sampler.AzureDevOpsTasks'
 
-            ExternalModuleDependencies = @('DscResource.AnalyzerRules', 'Pester', 'xDSCResourceDesigner', 'PSPKI')
+            ExternalModuleDependencies = @()
 
             # A URL to an icon representing this module.
-            IconUri                    = 'https://dsccommunity.org/images/DSC_Logo_300p.png'
+            IconUri                    = 'https://avatars.githubusercontent.com/u/44918567?s=200&v=4'
 
             Prerelease                 = ''
 
