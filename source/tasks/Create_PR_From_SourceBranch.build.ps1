@@ -139,7 +139,7 @@ task Create_PR_From_SourceBranch {
 
     $BranchName = $PullRequestConfigBranchName -f $ModuleVersion
 
-    Write-Build DarkGray ('About to create a PR based on the branch {0}.' -f $BranchName)
+    Write-Build DarkGray ('About to create a PR based on the branch ''{0}''.' -f $BranchName)
 
     Write-Build DarkGray ("`tVerifying that the branch '{0}' exist." -f $BranchName)
 
@@ -148,9 +148,13 @@ task Create_PR_From_SourceBranch {
 
     if ($upstreamChangelogBranch)
     {
+        Write-Build DarkGray ("`tBranch '{0}' exist." -f $BranchName)
+
         foreach ($gitConfigKey in @('BranchName', 'Instance', 'Collection', 'Project', 'RepositoryID', 'Debug', 'Title', 'Description'))
         {
             $gitConfigVariableName = 'PullRequestConfig{0}' -f $gitConfigKey
+
+            $configurationValue = Get-Variable -Name $gitConfigVariableName -ValueOnly -ErrorAction 'SilentlyContinue'
 
             <#
                 Using values in the following order:
@@ -160,15 +164,16 @@ task Create_PR_From_SourceBranch {
             #>
             if ($BuildInfo.PullRequestConfig -and $BuildInfo.PullRequestConfig.($gitConfigKey))
             {
-                Write-Build DarkGray "`t`t$gitConfigVariableName was set in build configuration with the value $configurationValue"
-
+                # Override the value that was set prior to the one in the build configuration.
                 $configurationValue = $BuildInfo.PullRequestConfig.($gitConfigKey)
+
+                Write-Build DarkGray "`t`t$gitConfigVariableName was set in build configuration with the value '$configurationValue'"
 
                 Set-Variable -Name $gitConfigVariableName -Value $configurationValue
             }
-            elseif ((Get-Variable -Name $gitConfigVariableName -ValueOnly -ErrorAction 'SilentlyContinue'))
+            elseif ($configurationValue)
             {
-                Write-Build DarkGray "`t`t$gitConfigVariableName was set to the the value $configurationValue from parameter, environment variable, passed from parent scope, or was the default value."
+                Write-Build DarkGray "`t`t$gitConfigVariableName was set to the the value '$configurationValue' from parameter, environment variable, passed from parent scope, or was the default value."
             }
         }
 
@@ -179,9 +184,9 @@ task Create_PR_From_SourceBranch {
 
         Write-Build DarkGray "`tCreating PR based on the branch."
 
-        if ([System.String]::IsNullOrEmpty($RepositoryID))
+        if ([System.String]::IsNullOrEmpty($PullRequestConfigRepositoryID))
         {
-            $RepositoryID = $ProjectName
+            $PullRequestConfigRepositoryID = $ProjectName
         }
 
         $payload = @{
