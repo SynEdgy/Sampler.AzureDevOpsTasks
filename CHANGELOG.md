@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- README.md
+  - Fixed wrong file name to azure-pipelines.yml
+
 ## [0.1.1] - 2022-06-09
 
 ### Adding
