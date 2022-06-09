@@ -90,7 +90,7 @@ The following tasks are run (in order):
 
 Please see each individual task for documentation.
 
-This is an example of how to use the task in the _build.yaml_ file:
+This is an example of how to use the task in the _azure-pipelines.yml_ file:
 
 ```yaml
 - task: PowerShell@2
