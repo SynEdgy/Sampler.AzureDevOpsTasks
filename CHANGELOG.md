@@ -30,4 +30,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Create_PR_From_SourceBranch`
   - Fixed branch not honouring default values.
   - Fixed output from task that were not showing correct values.
-  
