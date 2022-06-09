@@ -25,3 +25,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed output from task that were not showing correct values.
   
 - `Updated README file name`
+  - Fixed wrong file name to azure-pipelines.yml 
