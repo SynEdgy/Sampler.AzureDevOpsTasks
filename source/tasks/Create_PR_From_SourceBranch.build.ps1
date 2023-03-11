@@ -137,6 +137,11 @@ param
 task Create_PR_From_SourceBranch {
     . Set-SamplerTaskVariable
 
+    if ([System.String]::IsNullOrEmpty($BasicAuthPAT))
+    {
+        throw 'Must provide a personal access token to create a pull request.'
+    }
+
     $BranchName = $PullRequestConfigBranchName -f $ModuleVersion
 
     Write-Build DarkGray ('About to create a PR based on the branch ''{0}''.' -f $BranchName)
@@ -144,7 +149,8 @@ task Create_PR_From_SourceBranch {
     Write-Build DarkGray ("`tVerifying that the branch '{0}' exist." -f $BranchName)
 
     # This should not use Invoke-SamplerGit as this should not throw if fails.
-    $upstreamChangelogBranch = git -c http.sslbackend=schannel ls-remote --heads origin $BranchName
+    $base64pat = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(('{0}:{1}' -f 'PAT', $BasicAuthPAT)))
+    $upstreamChangelogBranch = git -c http.sslbackend=schannel -c http.extraHeader="Authorization: Basic $base64pat" ls-remote --heads origin $BranchName
 
     if ($upstreamChangelogBranch)
     {
@@ -175,11 +181,6 @@ task Create_PR_From_SourceBranch {
             {
                 Write-Build DarkGray "`t`t$gitConfigVariableName was set to the the value '$configurationValue' from parameter, environment variable, passed from parent scope, or was the default value."
             }
-        }
-
-        if ([System.String]::IsNullOrEmpty($BasicAuthPAT))
-        {
-            throw 'Must provide a personal access token to create a pull request.'
         }
 
         Write-Build DarkGray "`tCreating PR based on the branch."
