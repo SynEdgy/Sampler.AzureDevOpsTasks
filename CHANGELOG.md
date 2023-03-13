@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - README.md
   - Fixed wrong file name to azure-pipelines.yml
+- Task `Create_PR_From_SourceBranch`
+  - PAT is now used also for the remote git commands.
 
 ## [0.1.1] - 2022-06-09
 
